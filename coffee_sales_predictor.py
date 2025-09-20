@@ -7,6 +7,9 @@ from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 
 # --- Step 1: Load & preprocess ---
+# NOTE: The file paths below will need to be updated to a local path
+# where you have saved the datasets.
+# Example: file_path_1 = "index_1.csv"
 file_path_1 = r"C:\Users\hyjin\Downloads\archive (6)\index_1.csv"
 file_path_2 = r"C:\Users\hyjin\Downloads\archive (6)\index_2.csv"
 
@@ -66,10 +69,11 @@ for epoch in range(epochs):
     theta = theta - alpha * gradients
     cost = compute_cost(X_train_scaled, y_train, theta)
     cost_history.append(cost)
+    theta_history.append(theta.copy()) # Save theta at each step
     
     # Save snapshots for plotting hypothesis evolution
     if epoch in [0, 1, 2, 5, 10, 50, 100, 500, 999]:
-        theta_history.append((epoch, theta.copy()))
+        pass # theta_history is now updated every epoch
 
 # Final statistics
 print("\n--- Final Statistics ---")
@@ -97,8 +101,12 @@ X_line = np.c_[months, hours_fixed]
 X_line_scaled = scaler.transform(X_line)
 X_line_scaled = np.c_[np.ones((X_line_scaled.shape[0], 1)), X_line_scaled]
 
-colors = plt.cm.viridis(np.linspace(0,1,len(theta_history)))
-for color, (epoch, theta_snapshot) in zip(colors, theta_history):
+theta_history_snapshots = [(0, theta_history[0]), (1, theta_history[1]), (2, theta_history[2]),
+                           (5, theta_history[5]), (10, theta_history[10]), (50, theta_history[50]),
+                           (100, theta_history[100]), (500, theta_history[500]), (999, theta_history[999])]
+
+colors = plt.cm.viridis(np.linspace(0,1,len(theta_history_snapshots)))
+for color, (epoch, theta_snapshot) in zip(colors, theta_history_snapshots):
     preds = X_line_scaled @ theta_snapshot
     plt.plot(months, preds, color=color, label=f"Epoch {epoch}")
 
@@ -113,10 +121,14 @@ plt.savefig("hypothesis_evolution.png")
 print("Saved hypothesis_evolution.png")
 
 # 3. Theta evolution over epochs
-theta_array = np.array([t for _, t in theta_history]).squeeze()
+theta_array = np.array(theta_history).squeeze()
 plt.figure(figsize=(8,5))
-for i, name in enumerate(['Bias', 'Month', 'Hour']):
-    plt.plot([e for e,_ in theta_history], theta_array[:,i], label=name, marker='o')
+# Check the shape of theta_array before plotting
+if theta_array.ndim > 1:
+    for i, name in enumerate(['Bias', 'Month', 'Hour']):
+        plt.plot(range(epochs), theta_array[:,i], label=name, marker='o')
+else:
+    plt.plot(range(epochs), theta_array, label='Bias')
 plt.xlabel("Epoch")
 plt.ylabel("Theta Value")
 plt.title("Theta Parameters Evolution over Epochs")
@@ -126,6 +138,30 @@ plt.tight_layout()
 plt.savefig("theta_evolution.png")
 print("Saved theta_evolution.png")
 
+
+# 4. 3D Gradient Descent Path Plot
+print("\nGenerating 3D Gradient Descent Path plot...")
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Unpack theta_history into separate arrays for plotting
+theta_0_history = [t[1][0] for t in theta_history_snapshots]
+theta_1_history = [t[1][1] for t in theta_history_snapshots]
+cost_at_theta_history = [compute_cost(X_train_scaled, y_train, t) for t in theta_history]
+
+
+# Plot the path of the gradient descent
+ax.plot(theta_0_history, theta_1_history, [cost_at_theta_history[e] for e, _ in theta_history_snapshots], 'o-', color='red', markersize=6)
+
+# Set labels for the axes
+ax.set_xlabel('Month coefficient')
+ax.set_ylabel('Hour coefficient')
+ax.set_zlabel('Cost')
+ax.set_title('Gradient Descent Path in 3D')
+ax.grid(True)
+plt.tight_layout()
+plt.savefig("gradient_descent_path_3d.png")
+print("Saved gradient_descent_path_3d.png")
 
 
 # --- Step 4: Make a New Prediction ---
