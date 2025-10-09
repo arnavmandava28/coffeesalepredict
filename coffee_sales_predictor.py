@@ -10,8 +10,8 @@ from mpl_toolkits.mplot3d import Axes3D
 # NOTE: The file paths below will need to be updated to a local path
 # where you have saved the datasets.
 # Example: file_path_1 = "index_1.csv"
-file_path_1 = r"C:\Users\hyjin\Downloads\archive (6)\index_1.csv"
-file_path_2 = r"C:\Users\hyjin\Downloads\archive (6)\index_2.csv"
+file_path_1 = r"index_1.csv"
+file_path_2 = r"index_2.csv"
 
 df1 = pd.read_csv(file_path_1)
 df2 = pd.read_csv(file_path_2)
