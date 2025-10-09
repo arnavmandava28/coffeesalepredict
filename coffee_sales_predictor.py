@@ -6,10 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from mpl_toolkits.mplot3d import Axes3D
 
-# --- Step 1: Load & preprocess ---
-# NOTE: The file paths below will need to be updated to a local path
-# where you have saved the datasets.
-# Example: file_path_1 = "index_1.csv"
+#Load file
 file_path_1 = r"index_1.csv"
 file_path_2 = r"index_2.csv"
 
